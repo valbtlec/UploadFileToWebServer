@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -42,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     TextView textView;
     private Bitmap bitmap;
     private String filePath;
+    private Button btnChoose, btnUpload;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,9 +53,10 @@ public class MainActivity extends AppCompatActivity {
         //initializing views
         imageView =  findViewById(R.id.imageView);
         textView =  findViewById(R.id.textview);
-
+        btnChoose=findViewById(R.id.buttonChooseImage);
+        btnUpload=findViewById(R.id.buttonUploadImage);
         //adding click listener to button
-        findViewById(R.id.buttonUploadImage).setOnClickListener(new View.OnClickListener() {
+        btnChoose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if ((ContextCompat.checkSelfPermission(getApplicationContext(),
@@ -76,13 +79,21 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+        btnUpload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                uploadBitmap(bitmap);
+
+            }
+        });
     }
 
     private void showFileChooser() {
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+        startActivityForResult(Intent.createChooser(intent, "Sélectionnez une photo"), PICK_IMAGE_REQUEST);
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -97,7 +108,6 @@ public class MainActivity extends AppCompatActivity {
                     textView.setText("File Selected");
                     Log.d("filePath", String.valueOf(filePath));
                     bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), picUri);
-                    uploadBitmap(bitmap);
                     imageView.setImageBitmap(bitmap);
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -144,6 +154,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onResponse(NetworkResponse response) {
                         try {
                             JSONObject obj = new JSONObject(new String(response.data));
+
                             Toast.makeText(getApplicationContext(), "result " + obj.getString("message"), Toast.LENGTH_SHORT).show();
                         } catch (JSONException e) {
                             e.printStackTrace();
